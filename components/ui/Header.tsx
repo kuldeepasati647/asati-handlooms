@@ -14,6 +14,7 @@ const CartIcon: React.FC = () => {
     }
     setIsCartOpen(!isCartOpen);
   };
+   if (totalItems === 0) return null;
 
   return (
     <div className="relative">
@@ -107,7 +108,7 @@ const Header: React.FC = () => {
           className="text-3xl font-serif font-bold text-indigo cursor-pointer transition-transform duration-300 hover:scale-105"
           onClick={handleLogoClick}
         >
-          Asati
+          Asati Handlooms
         </div>
         <div className="flex items-center space-x-6">
           <CartIcon />

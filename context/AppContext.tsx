@@ -11,6 +11,7 @@ interface AppContextType {
   logout: () => void;
   users: User[];
   createUser: (userData: Omit<User, 'id' | 'role'>) => void;
+  removeUser: (id: string) => void;
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   categories: Category[];
@@ -37,10 +38,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -62,12 +63,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const foundUser = users.find(u => u.id === id && u.password === password);
     if (foundUser) {
-        setUser(foundUser);
-        setCurrentPage('marketplace');
-        showToast(`Welcome, ${foundUser.name}!`, 'success');
-        setShowAuthModal(false);
+      setUser(foundUser);
+      setCurrentPage('marketplace');
+      showToast(`Welcome, ${foundUser.name}!`, 'success');
+      setShowAuthModal(false);
     } else {
-        showToast('Invalid credentials. Please try again.', 'error');
+      showToast('Invalid credentials. Please try again.', 'error');
     }
   };
 
@@ -80,39 +81,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const createUser = (userData: Omit<User, 'id' | 'role'>) => {
     const newUser: User = {
-        ...userData,
-        id: `user-${Math.random().toString(36).substr(2, 9)}`,
-        role: 'user',
+      ...userData,
+      id: `user-${Math.random().toString(36).substr(2, 9)}`,
+      role: 'user',
     };
     setUsers(prev => [...prev, newUser]);
     showToast(`User account for ${newUser.name} created! ID: ${newUser.id}`, 'success');
   };
-  
+
+  const removeUser = (id: string) => {
+    setUsers(prev => prev.filter(user => user.id !== id));
+    showToast('User removed successfully.', 'success');
+  };
+
   const addToCart = (product: Product, quantity = 1) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.product.id === product.id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) {
+        return prev.map(item =>
+          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
-      return [...prevCart, { product, quantity }];
+      return [...prev, { product, quantity }];
     });
     showToast(`${product.name} added to cart!`, 'success');
   };
 
   const removeFromCart = (productId: number) => {
-    setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+    setCart(prev => prev.filter(item => item.product.id !== productId));
   };
-  
+
   const updateCartQuantity = (productId: number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
     } else {
-      setCart(prevCart =>
-        prevCart.map(item =>
+      setCart(prev =>
+        prev.map(item =>
           item.product.id === productId ? { ...item, quantity } : item
         )
       );
@@ -121,24 +125,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const placeOrder = () => {
     if (!user || cart.length === 0) {
-        showToast('Cannot place order.', 'error');
-        return;
+      showToast('Cannot place order.', 'error');
+      return;
     }
+
     const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
     const tax = subtotal * 0.1;
     const total = subtotal + tax;
-    
+
     const newOrder: Order = {
       id: `order-${Date.now()}`,
       userId: user.id,
       userName: user.name,
       items: [...cart],
-      total: total,
+      total,
       date: new Date(),
     };
 
     setOrders(prev => [newOrder, ...prev]);
     setCart([]);
+    showToast('Order placed successfully!', 'success');
   };
 
   return (
@@ -151,6 +157,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         logout,
         users,
         createUser,
+        removeUser,
         products,
         setProducts,
         categories,
@@ -178,8 +185,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
+  if (!context) throw new Error('useApp must be used within AppProvider');
   return context;
 };
