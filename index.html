@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asati Handloom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'sans': ['Poppins', 'sans-serif'],
+              'serif': ['Playfair Display', 'serif'],
+            },
+            colors: {
+              'ivory': '#FFFFF0',
+              'beige': '#F5F5DC',
+              'indigo': '#2c3e50',
+              'indigo-light': '#34495e',
+            },
+            keyframes: {
+              'glow': {
+                '0%, 100%': { boxShadow: '0 0 5px #F5F5DC, 0 0 10px #F5F5DC, 0 0 15px #F5F5DC' },
+                '50%': { boxShadow: '0 0 20px #F5F5DC, 0 0 30px #F5F5DC, 0 0 40px #F5F5DC' },
+              },
+              'fade-in': {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              'slide-in-left': {
+                '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                '100%': { transform: 'translateX(0)', opacity: '1' },
+              },
+              'slide-in-right': {
+                '0%': { transform: 'translateX(100%)', opacity: '0' },
+                '100%': { transform: 'translateX(0)', opacity: '1' },
+              },
+              'ripple': {
+                'to': { transform: 'scale(4)', opacity: '0' }
+              }
+            },
+            animation: {
+              'glow': 'glow 3s ease-in-out infinite',
+              'fade-in': 'fade-in 0.5s ease-out forwards',
+              'slide-in-left': 'slide-in-left 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+              'slide-in-right': 'slide-in-right 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+              'ripple': 'ripple 600ms linear',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #FFFFF0; /* Ivory */
+        color: #2c3e50; /* Indigo */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
