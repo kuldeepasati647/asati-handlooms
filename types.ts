@@ -36,4 +36,5 @@ export interface Order {
   items: CartItem[];
   total: number;
   date: Date;
+  status: "pending" | "approved" | "declined";
 }

@@ -208,42 +208,122 @@ const UserManager: React.FC = () => {
 
 
 const OrderNotifications: React.FC = () => {
-    const { orders } = useApp();
+    const { orders, showToast, setOrders } = useApp();
+    const [search, setSearch] = useState("");
+
+    const updateStatus = (orderId: string, newStatus: "approved" | "declined") => {
+        setOrders((prev) =>
+            prev.map((order) =>
+                order.id === orderId ? { ...order, status: newStatus } : order
+            )
+        );
+
+        showToast(
+            newStatus === "approved" ? "Order Approved!" : "Order Declined!",
+            newStatus === "approved" ? "success" : "error"
+        );
+    };
+    const filteredOrders = orders.filter(
+        (order) =>
+            order.userName.toLowerCase().includes(search.toLowerCase()) ||
+            order.id.toLowerCase().includes(search.toLowerCase())
+    );
+    const renderSection = (
+        title: string,
+        filterStatus: "pending" | "approved" | "declined"
+    ) => {
+        const filteredOrders = orders.filter(
+            (order) => order.status === filterStatus
+        );
+
+        return (
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold mb-3">{title}</h2>
+
+                {filteredOrders.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No orders available.</p>
+                ) : (
+                    filteredOrders.map((order) => (
+                        <div
+                            key={order.id}
+                            className="p-4 mb-3 rounded-lg shadow bg-white border border-gray-200"
+                        >
+                            <p className="font-medium">
+                                Order ID: <span className="text-blue-600">{order.id}</span>
+                            </p>
+                            <p className="text-sm text-gray-700">
+                                Customer: {order.userName}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                Items: {order.items.length}
+                            </p>
+                            <div className="mt-3 pl-3 border-l border-gray-300">
+                                <p className="font-medium mb-2">Items Ordered:</p>
+                                {order.items.map(({ product, quantity }, idx) => (
+                                    <div key={idx} className="text-sm flex justify-between mb-1">
+                                        <span>{product.name}</span>
+                                        <span className="font-semibold">
+                                            {quantity} × ₹{product.price}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex justify-between items-center mt-3">
+                                <p className="font-semibold">₹{order.total.toFixed(2)}</p>
+                            </div>
+
+                            {order.status === "pending" && (
+                                <div className="flex gap-2 mt-3">
+                                    <button
+                                        onClick={() => updateStatus(order.id, "approved")}
+                                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                    >
+                                        Approve
+                                    </button>
+
+                                    <button
+                                        onClick={() => updateStatus(order.id, "declined")}
+                                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                                    >
+                                        Decline
+                                    </button>
+                                </div>
+                            )}
+
+                            {order.status !== "pending" && (
+                                <p
+                                    className={`mt-2 px-3 py-1 text-sm rounded font-semibold w-fit ${order.status === "approved"
+                                            ? "bg-green-100 text-green-700"
+                                            : "bg-red-100 text-red-700"
+                                        }`}
+                                >
+                                    {order.status.toUpperCase()}
+                                </p>
+                            )}
+                        </div>
+                    ))
+                )}
+            </div>
+        );
+    };
 
     return (
-        <div className="bg-white/60 backdrop-blur-md rounded-xl p-6 border border-beige shadow-lg max-w-3xl mx-auto">
-            <h2 className="text-2xl font-serif font-bold mb-4">Order Notifications</h2>
-            {orders.length === 0 ? (
-                <p className="text-center py-10 text-indigo-light">No new orders.</p>
-            ) : (
-                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                    {orders.map(order => (
-                        <div key={order.id} className="bg-beige/50 p-4 rounded-lg animate-fade-in">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="font-bold text-indigo">{order.userName}</p>
-                                    <p className="text-sm text-indigo-light">Order ID: {order.id}</p>
-                                    <p className="text-xs text-indigo-light/70">{order.date.toLocaleString()}</p>
-                                </div>
-                                <p className="text-xl font-bold text-indigo">₹{order.total.toFixed(2)}</p>
-                            </div>
-                            <div className="mt-2 border-t border-indigo/10 pt-2">
-                                <ul className="text-sm space-y-1">
-                                    {order.items.map(item => (
-                                        <li key={item.product.id} className="flex justify-between">
-                                            <span>{item.product.name} x {item.quantity}</span>
-                                            <span>₹{(item.product.price * item.quantity).toFixed(2)}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+        <div className="mt-4">
+            <input
+                type="text"
+                placeholder="Search by user name or order ID"
+                className="w-full p-3 mb-6 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+            {renderSection("Pending Orders", "pending")}
+            {renderSection("Approved Orders", "approved")}
+            {renderSection("Declined Orders", "declined")}
         </div>
-    )
+    );
 };
+
 
 const ProductManager: React.FC = () => {
     const { products, setProducts, showToast } = useApp();
@@ -335,7 +415,8 @@ const AdminDashboard: React.FC = () => {
                 <div className="flex justify-center border-b-2 border-indigo/10 mb-8">
                     <TabButton tabName="products">Manage Products</TabButton>
                     <TabButton tabName="users">Manage Users</TabButton>
-                    <TabButton tabName="notifications" notificationCount={orders.length}> Manage Notifications </TabButton>
+                    <TabButton tabName="notifications" notificationCount={orders.filter(o => o.status === "pending").length}>Manage Notifications</TabButton>
+
                 </div>
 
                 <div>

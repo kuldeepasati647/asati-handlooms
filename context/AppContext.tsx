@@ -30,6 +30,8 @@ interface AppContextType {
   setShowCheckoutModal: (show: boolean) => void;
   orders: Order[];
   placeOrder: () => void;
+  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
+  updateOrderStatus: (orderId: string, status: "approved" | "declined") => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -190,16 +192,26 @@ const [products, setProducts] = useState<Product[]>([
       items: [...cart],
       total,
       date: new Date(),
+      status: "pending",
     };
 
     setOrders(prev => [newOrder, ...prev]);
     setCart([]);
     showToast('Order placed successfully!', 'success');
   };
-
+const updateOrderStatus = (orderId: string, status: "approved" | "declined") => {
+  setOrders(prev =>
+    prev.map(order =>
+      order.id === orderId ? { ...order, status } : order
+    )
+  );
+  showToast(`Order ${status}!`, status === "approved" ? "success" : "error");
+};
   return (
     <AppContext.Provider
       value={{
+        setOrders,
+        updateOrderStatus,
         currentPage,
         setCurrentPage,
         user,
