@@ -72,7 +72,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
           <div className="flex flex-col justify-center">
             <span className="text-sm font-semibold text-indigo-light uppercase">{product.category}</span>
             <h1 className="text-4xl font-serif font-bold text-indigo my-2">{product.name}</h1>
-            <p className="text-3xl font-sans font-semibold text-indigo mb-4">${product.price.toFixed(2)}</p>
+            <p className="text-3xl font-sans font-semibold text-indigo mb-4">₹{product.price.toFixed(2)}</p>
             <p className="text-indigo-light mb-6">{product.description}</p>
             <div className="text-sm mb-6">
                 <span className="font-semibold text-indigo">Material:</span> {product.material}

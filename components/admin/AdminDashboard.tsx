@@ -7,7 +7,7 @@ const ProductRow: React.FC<{ product: Product; onEdit: (product: Product) => voi
         <td className="p-3"><img src={product.imageUrl} alt={product.name} className="w-16 h-12 object-cover rounded" /></td>
         <td className="p-3 font-semibold text-indigo">{product.name}</td>
         <td className="p-3 text-indigo-light">{product.category}</td>
-        <td className="p-3 text-indigo-light">${product.price.toFixed(2)}</td>
+        <td className="p-3 text-indigo-light">₹{product.price.toFixed(2)}</td>
         <td className="p-3 text-indigo-light">{product.inventory}</td>
         <td className="p-3 flex space-x-4">
             <button onClick={() => onEdit(product)} className="text-indigo hover:underline">Edit</button>
@@ -225,14 +225,14 @@ const OrderNotifications: React.FC = () => {
                                     <p className="text-sm text-indigo-light">Order ID: {order.id}</p>
                                     <p className="text-xs text-indigo-light/70">{order.date.toLocaleString()}</p>
                                 </div>
-                                <p className="text-xl font-bold text-indigo">${order.total.toFixed(2)}</p>
+                                <p className="text-xl font-bold text-indigo">₹{order.total.toFixed(2)}</p>
                             </div>
                             <div className="mt-2 border-t border-indigo/10 pt-2">
                                 <ul className="text-sm space-y-1">
                                     {order.items.map(item => (
                                         <li key={item.product.id} className="flex justify-between">
                                             <span>{item.product.name} x {item.quantity}</span>
-                                            <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                                            <span>₹{(item.product.price * item.quantity).toFixed(2)}</span>
                                         </li>
                                     ))}
                                 </ul>

@@ -8,7 +8,7 @@ const CheckoutModal: React.FC = () => {
     if (!showCheckoutModal) return null;
 
     const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-    const tax = subtotal * 0.1; // 10% tax for display
+    const tax = subtotal * 0.1; 
     const total = subtotal + tax;
 
     const handleConfirmOrder = () => {
@@ -18,7 +18,6 @@ const CheckoutModal: React.FC = () => {
     
     const handleClose = () => {
         setShowCheckoutModal(false);
-        // Delay resetting state to allow for closing animation
         setTimeout(() => {
             setIsOrderPlaced(false);
         }, 500);
@@ -58,14 +57,14 @@ const CheckoutModal: React.FC = () => {
                                         <p className="font-semibold text-indigo">{item.product.name}</p>
                                         <p className="text-sm text-indigo-light">Quantity: {item.quantity}</p>
                                     </div>
-                                    <p className="font-semibold text-indigo text-lg">${(item.product.price * item.quantity).toFixed(2)}</p>
+                                    <p className="font-semibold text-indigo text-lg">₹{(item.product.price * item.quantity).toFixed(2)}</p>
                                 </div>
                             ))}
                         </div>
                         <div className="mt-6 pt-6 border-t border-beige space-y-2">
-                             <div className="flex justify-between text-indigo-light"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-                             <div className="flex justify-between text-indigo-light"><span>Tax (10%)</span><span>${tax.toFixed(2)}</span></div>
-                             <div className="flex justify-between font-bold text-indigo text-xl"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                             <div className="flex justify-between text-indigo-light"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
+                             <div className="flex justify-between text-indigo-light"><span>Tax (10%)</span><span>₹{tax.toFixed(2)}</span></div>
+                             <div className="flex justify-between font-bold text-indigo text-xl"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
                         </div>
                         <div className="mt-8">
                             <button onClick={handleConfirmOrder} className="w-full bg-indigo text-ivory font-bold py-3 rounded-lg hover:bg-indigo-light transition-colors duration-300 text-lg">

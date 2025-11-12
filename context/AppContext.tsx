@@ -38,14 +38,64 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  // const [products, setProducts] = useState<Product[]>([]);
+  // const [categories, setCategories] = useState<Category[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  
+
+const [categories, setCategories] = useState<Category[]>([
+  { id: 'c1', name: 'Clothing' },
+  { id: 'c2', name: 'Home Decor' },
+]);
+
+const [products, setProducts] = useState<Product[]>([
+  {
+    id: 1,
+    name: "Handloom Cotton Saree",
+    price: 129.99,
+    category: "Clothing",
+    material: "Pure Handloom Cotton",
+    description: "Classic handwoven saree made using traditional loom techniques.",
+    imageUrl: "https://img.tatacliq.com/images/i19//437Wx649H/MP000000019481068_437Wx649H_202408050339231.jpeg",
+    inventory: 10,
+  },
+  {
+    id: 2,
+    name: "Khadi Handloom Shirt",
+    price: 59.50,
+    category: "Clothing",
+    material: "100% Organic Khadi Cotton",
+    description: "Comfortable handwoven khadi shirt — breathable and premium finish.",
+    imageUrl: "https://trybestonline.com/wp-content/uploads/2024/12/Premium-Handloom-Khadi-Shirt.jpg",
+    inventory: 10,
+  },
+  {
+    id: 3,
+    name: "Handwoven Jute Table Runner",
+    price: 39.90,
+    category: "Home Decor",
+    material: "Natural Jute Fiber",
+    description: "Eco-friendly table runner crafted by rural handloom artisans.",
+    imageUrl: "https://litdecorandgift.com/cdn/shop/products/ScreenShot2023-02-04at11.37.38AM_530x@2x.png?v=1675532463",
+    inventory: 10,
+  },
+  {
+    id: 4,
+    name: "Handloom Cushion Cover Set",
+    price: 49.99,
+    category: "Home Decor",
+    material: "Cotton + Handloom Weave",
+    description: "Minimalist cushion covers with geometric handloom patterns.",
+    imageUrl: "https://m.media-amazon.com/images/I/81bvNkY1vCL._AC_UF894,1000_QL80_.jpg",
+    inventory: 10,
+  },
+]);
+
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -60,7 +110,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setShowAuthModal(false);
       return;
     }
-
+  
     const foundUser = users.find(u => u.id === id && u.password === password);
     if (foundUser) {
       setUser(foundUser);

@@ -56,7 +56,7 @@ const CartDropdown: React.FC<{ setIsCartOpen: (isOpen: boolean) => void }> = ({ 
                                 <img src={item.product.imageUrl} alt={item.product.name} className="w-16 h-16 rounded-md object-cover" />
                                 <div className="ml-3 flex-1">
                                     <p className="font-semibold text-indigo">{item.product.name}</p>
-                                    <p className="text-sm text-indigo-light">${item.product.price.toFixed(2)}</p>
+                                    <p className="text-sm text-indigo-light">₹{item.product.price.toFixed(2)}</p>
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <div className="flex items-center">
@@ -74,7 +74,7 @@ const CartDropdown: React.FC<{ setIsCartOpen: (isOpen: boolean) => void }> = ({ 
                     <div className="mt-4">
                         <div className="flex justify-between font-bold text-indigo">
                             <span>Total:</span>
-                            <span>${total}</span>
+                            <span>₹{total}</span>
                         </div>
                         <button onClick={handleCheckout} className="w-full mt-4 bg-indigo text-ivory py-2 rounded-lg font-semibold hover:bg-indigo-light transition-colors duration-300">
                             Checkout

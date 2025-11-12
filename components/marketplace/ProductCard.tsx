@@ -28,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="pt-5 text-center">
           <h3 className="text-xl font-serif font-bold text-indigo">{product.name}</h3>
           <p className="text-indigo-light mt-1">{product.category}</p>
-          <p className="mt-4 text-2xl font-semibold text-indigo">${product.price.toFixed(2)}</p>
+          <p className="mt-4 text-2xl font-semibold text-indigo">₹{product.price.toFixed(2)}</p>
         </div>
         <div className="pt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
            <button 
