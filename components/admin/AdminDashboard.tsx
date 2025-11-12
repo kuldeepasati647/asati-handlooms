@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useMemo, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Product, Category, User, Order } from '../../types';
 
@@ -208,121 +208,230 @@ const UserManager: React.FC = () => {
 
 
 const OrderNotifications: React.FC = () => {
-    const { orders, showToast, setOrders } = useApp();
-    const [search, setSearch] = useState("");
+  const { orders, setOrders, showToast } = useApp();
+  const [search, setSearch] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredOrders = useMemo(() => {
+    if (!normalizedSearch) return orders;
+    return orders.filter((o) => {
+      const name = (o.userName || "").toString().toLowerCase();
+      const id = (o.id || "").toString().toLowerCase();
+      return name.includes(normalizedSearch) || id.includes(normalizedSearch);
+    });
+  }, [orders, normalizedSearch]);
 
-    const updateStatus = (orderId: string, newStatus: "approved" | "declined") => {
-        setOrders((prev) =>
-            prev.map((order) =>
-                order.id === orderId ? { ...order, status: newStatus } : order
-            )
-        );
+  const pendingOrders = filteredOrders.filter((o) => o.status === "pending");
+  const approvedOrders = filteredOrders.filter((o) => o.status === "approved");
+  const declinedOrders = filteredOrders.filter((o) => o.status === "declined");
 
-        showToast(
-            newStatus === "approved" ? "Order Approved!" : "Order Declined!",
-            newStatus === "approved" ? "success" : "error"
-        );
-    };
-    const filteredOrders = orders.filter(
-        (order) =>
-            order.userName.toLowerCase().includes(search.toLowerCase()) ||
-            order.id.toLowerCase().includes(search.toLowerCase())
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const updateStatus = (orderId: string, newStatus: "approved" | "declined") => {
+    setOrders((prev) =>
+      prev.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order))
     );
-    const renderSection = (
-        title: string,
-        filterStatus: "pending" | "approved" | "declined"
-    ) => {
-        const filteredOrders = orders.filter(
-            (order) => order.status === filterStatus
-        );
 
-        return (
-            <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-3">{title}</h2>
+    showToast(
+      newStatus === "approved" ? "Order Approved!" : "Order Declined!",
+      newStatus === "approved" ? "success" : "error"
+    );
+  };
 
-                {filteredOrders.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No orders available.</p>
-                ) : (
-                    filteredOrders.map((order) => (
-                        <div
-                            key={order.id}
-                            className="p-4 mb-3 rounded-lg shadow bg-white border border-gray-200"
-                        >
-                            <p className="font-medium">
-                                Order ID: <span className="text-blue-600">{order.id}</span>
-                            </p>
-                            <p className="text-sm text-gray-700">
-                                Customer: {order.userName}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                Items: {order.items.length}
-                            </p>
-                            <div className="mt-3 pl-3 border-l border-gray-300">
-                                <p className="font-medium mb-2">Items Ordered:</p>
-                                {order.items.map(({ product, quantity }, idx) => (
-                                    <div key={idx} className="text-sm flex justify-between mb-1">
-                                        <span>{product.name}</span>
-                                        <span className="font-semibold">
-                                            {quantity} × ₹{product.price}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="flex justify-between items-center mt-3">
-                                <p className="font-semibold">₹{order.total.toFixed(2)}</p>
-                            </div>
-
-                            {order.status === "pending" && (
-                                <div className="flex gap-2 mt-3">
-                                    <button
-                                        onClick={() => updateStatus(order.id, "approved")}
-                                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                                    >
-                                        Approve
-                                    </button>
-
-                                    <button
-                                        onClick={() => updateStatus(order.id, "declined")}
-                                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                                    >
-                                        Decline
-                                    </button>
-                                </div>
-                            )}
-
-                            {order.status !== "pending" && (
-                                <p
-                                    className={`mt-2 px-3 py-1 text-sm rounded font-semibold w-fit ${order.status === "approved"
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-red-100 text-red-700"
-                                        }`}
-                                >
-                                    {order.status.toUpperCase()}
-                                </p>
-                            )}
-                        </div>
-                    ))
-                )}
+  const downloadInvoice = (order: Order) => {
+    const invoiceHtml = `
+      <html>
+        <head>
+          <title>Invoice - ${order.id}</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 20px; color: #111; }
+            .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+            .logo { font-weight:700; color:#2b6cb0; font-size:20px; }
+            .meta { text-align:right; font-size:14px; color:#444; }
+            table { width:100%; border-collapse:collapse; margin-top:16px; }
+            th, td { padding:8px 10px; border-bottom:1px solid #e6e6e6; text-align:left; }
+            .total { font-weight:700; font-size:16px; }
+            .right { text-align:right; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="logo">Asati Handloom</div>
+              <div style="font-size:13px; color:#555;">Artistry in Every Thread</div>
             </div>
-        );
-    };
+            <div class="meta">
+              <div>Invoice: ${order.id}</div>
+              <div>Date: ${new Date(order.date).toLocaleString()}</div>
+              <div>Customer: ${order.userName}</div>
+            </div>
+          </div>
 
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th class="right">Unit</th>
+                <th class="right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items
+                .map(
+                  (it) => `
+                  <tr>
+                    <td>${it.product.name}</td>
+                    <td>${it.quantity}</td>
+                    <td class="right">₹${it.product.price.toFixed(2)}</td>
+                    <td class="right">₹${(it.product.price * it.quantity).toFixed(2)}</td>
+                  </tr>`
+                )
+                .join("")}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" class="right total">Total</td>
+                <td class="right total">₹${order.total.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <p style="margin-top:20px; font-size:13px; color:#555;">
+            Thank you for supporting local handloom artisans.
+          </p>
+        </body>
+      </html>
+    `;
+
+    const w = window.open("", "_blank");
+    if (!w) {
+      showToast("Unable to open invoice window (pop-up blocked).", "error");
+      return;
+    }
+    w.document.open();
+    w.document.write(invoiceHtml);
+    w.document.close();
+    setTimeout(() => {
+      w.focus();
+      w.print();
+    }, 250);
+  };
+
+  const renderOrderCard = (order: Order) => {
+    const isExpanded = !!expandedIds[order.id];
+    const maxH = isExpanded ? 800 : 0;
     return (
-        <div className="mt-4">
-            <input
-                type="text"
-                placeholder="Search by user name or order ID"
-                className="w-full p-3 mb-6 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-blue-500"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
-            {renderSection("Pending Orders", "pending")}
-            {renderSection("Approved Orders", "approved")}
-            {renderSection("Declined Orders", "declined")}
+      <div key={order.id} className="bg-white rounded-lg shadow p-4 mb-4 border border-beige">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-baseline gap-3">
+              <p className="font-semibold text-indigo">Order ID: <span className="font-mono text-sm text-indigo-light ml-2">{order.id}</span></p>
+              <p className="text-sm text-indigo-light">• {new Date(order.date).toLocaleString()}</p>
+            </div>
+            <p className="text-sm text-indigo-light">Customer: <span className="font-medium text-indigo">{order.userName}</span></p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <p className="text-lg font-semibold text-indigo">₹{order.total.toFixed(2)}</p>
+            <button
+              onClick={() => downloadInvoice(order)}
+              className="px-3 py-1 border rounded text-sm text-indigo hover:bg-indigo/5"
+              title="Download / Print invoice"
+            >
+              Download Invoice
+            </button>
+            <button
+              onClick={() => toggleExpand(order.id)}
+              className="px-3 py-1 bg-indigo text-ivory rounded text-sm"
+            >
+              {isExpanded ? "Collapse" : "View Items"}
+            </button>
+          </div>
         </div>
+        <div
+          className="overflow-hidden transition-[max-height] duration-300 ease-in-out mt-4"
+          style={{ maxHeight: `${maxH}px` }}
+        >
+          <div className="pt-2">
+            {order.items.map((it, idx) => (
+              <div key={idx} className="flex items-center gap-3 py-2 border-b last:border-b-0">
+                <img src={it.product.imageUrl} alt={it.product.name} className="w-12 h-12 object-cover rounded" />
+                <div className="flex-1">
+                  <div className="font-semibold text-indigo">{it.product.name}</div>
+                  <div className="text-sm text-indigo-light">{it.product.material}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm">Qty: {it.quantity}</div>
+                  <div className="font-semibold">₹{(it.product.price * it.quantity).toFixed(2)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex items-center gap-3">
+            {order.status === "pending" ? (
+              <>
+                <button
+                  onClick={() => updateStatus(order.id, "approved")}
+                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Approve
+                </button>
+                <button
+                  onClick={() => updateStatus(order.id, "declined")}
+                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Decline
+                </button>
+              </>
+            ) : (
+              <div className={`px-2 py-1 text-sm font-semibold rounded ${order.status === "approved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                {order.status.toUpperCase()}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     );
+  };
+
+  return (
+    <div className="bg-white/60 backdrop-blur-md rounded-xl p-6 border border-beige shadow-lg max-w-4xl mx-auto">
+      <h2 className="text-2xl font-serif font-bold mb-4">Order Notifications</h2>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by user name or order ID"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo"
+        />
+        <p className="text-xs text-indigo-light mt-2">Search shows results across all sections (Pending / Approved / Declined).</p>
+      </div>
+
+      {/* Sections */}
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-3">Pending Verification</h3>
+        {pendingOrders.length === 0 ? <p className="text-indigo-light">No pending orders.</p> : pendingOrders.map(renderOrderCard)}
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-3">Approved Orders</h3>
+        {approvedOrders.length === 0 ? <p className="text-indigo-light">No approved orders.</p> : approvedOrders.map(renderOrderCard)}
+      </div>
+
+      <div>
+        <h3 className="text-xl font-semibold mb-3">Declined Orders</h3>
+        {declinedOrders.length === 0 ? <p className="text-indigo-light">No declined orders.</p> : declinedOrders.map(renderOrderCard)}
+      </div>
+    </div>
+  );
 };
+
+
 
 
 const ProductManager: React.FC = () => {
