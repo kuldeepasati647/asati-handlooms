@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongoose": "^9.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -17,5 +20,18 @@
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
-  }
+  },
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kuldeepasati647/asati-handlooms.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kuldeepasati647/asati-handlooms/issues"
+  },
+  "homepage": "https://github.com/kuldeepasati647/asati-handlooms#readme"
 }
