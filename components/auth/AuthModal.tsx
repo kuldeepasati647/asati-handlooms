@@ -13,7 +13,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isVisible }) => {
 
   useEffect(() => {
     if (isVisible) {
-      // Delay to allow for mount animation
       const timer = setTimeout(() => setShowContent(true), 50);
       return () => clearTimeout(timer);
     } else {
@@ -25,7 +24,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isVisible }) => {
     e.preventDefault();
     if (userId && password) {
       login(userId, password);
-      // Reset fields
       setUserId('');
       setPassword('');
     }
