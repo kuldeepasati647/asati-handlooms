@@ -5,7 +5,6 @@ import { useApp } from '../../context/AppContext';
 const ParallaxSVG: React.FC<{ scrollY: number }> = ({ scrollY }) => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Layer 1 - Deepest */}
       <svg
         className="absolute w-full h-full text-beige transition-transform duration-500 ease-out"
         style={{ transform: `translateY(${scrollY * 0.1}px)`, top: '-20%' }}
@@ -15,7 +14,6 @@ const ParallaxSVG: React.FC<{ scrollY: number }> = ({ scrollY }) => {
         <path d="M0,50 Q25,20 50,50 T100,50" stroke="currentColor" fill="none" strokeWidth="1" opacity="0.3" />
         <path d="M0,60 Q25,90 50,60 T100,60" stroke="currentColor" fill="none" strokeWidth="1" opacity="0.2" />
       </svg>
-      {/* Layer 2 - Middle */}
       <svg
         className="absolute w-full h-full text-indigo-light transition-transform duration-500 ease-out"
         style={{ transform: `translateY(${scrollY * 0.3}px)` }}
@@ -25,7 +23,6 @@ const ParallaxSVG: React.FC<{ scrollY: number }> = ({ scrollY }) => {
         <circle cx="80" cy="20" r="10" stroke="currentColor" fill="none" strokeWidth="0.5" opacity="0.4" />
         <path d="M10,10 L30,30 M40,20 L20,40" stroke="currentColor" fill="none" strokeWidth="0.5" opacity="0.3" />
       </svg>
-       {/* Layer 3 - Closest */}
       <svg
         className="absolute w-full h-full text-indigo transition-transform duration-500 ease-out"
         style={{ transform: `translateY(${scrollY * 0.5}px)`, top: '30%' }}

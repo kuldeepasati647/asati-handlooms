@@ -99,35 +99,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // LOGIN SYSTEM
 
-  const login = (email: string, password?: string) => {
-    // Admin login
-    if (email.toLowerCase() === 'admin' && password === 'admin') {
-      setUser({
-        _id: 'admin',
-        id: 'admin',
-        name: 'Admin',
-        role: 'admin',
-        email: 'admin@asati.com',
-        password: 'admin',
-        address: 'Admin HQ'
-      });
-      setCurrentPage('admin');
-      showToast("Welcome Admin!", 'success');
-      setShowAuthModal(false);
-      return;
-    }
+const login = (userId: string, password: string) => {
+  // ADMIN LOGIN
+  if (userId.toLowerCase() === "admin" && password === "admin") {
+    setUser({
+      _id: "admin",
+      id: "admin",
+      name: "Admin",
+      role: "admin",
+      email: "admin@asati.com",
+      password: "admin",
+      address: "Admin HQ"
+    });
+    fetchUsersFromDB();
+    setCurrentPage("admin");
+    showToast("Welcome Admin!", "success");
+    setShowAuthModal(false);
+    return;
+  }
 
-    // Normal user login
-    const foundUser = users.find(u => u.email === email && u.password === password);
-    if (foundUser) {
-      setUser(foundUser);
-      setCurrentPage('marketplace');
-      showToast(`Welcome ${foundUser.name}!`, "success");
-      setShowAuthModal(false);
-    } else {
-      showToast("Invalid login details!", "error");
-    }
-  };
+  // NORMAL USER LOGIN USING USERID + PASSWORD
+  const foundUser = users.find(
+    u => u.UserId.toLowerCase() === userId.toLowerCase() && u.password === password
+  );
+
+  if (foundUser) {
+    setUser(foundUser);
+    setCurrentPage("marketplace");
+    showToast(`Welcome ${foundUser.name}!`, "success");
+    setShowAuthModal(false);
+  } else {
+    showToast("Invalid User ID or Password!", "error");
+  }
+};
+
 
   const logout = () => {
     setUser(null);
@@ -140,20 +145,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 const API_BASE = "https://asati-backend.onrender.com/api/users";
 
-useEffect(() => {
-  async function loadUsers() {
-    try {
-      const res = await fetch(API_BASE);
-      const data = await res.json();
-      setUsers(data);
-    } catch (err) {
-      console.error(err);
-      showToast("Unable to load users.", "error");
-    }
+const fetchUsersFromDB = async () => {
+  try {
+    const res = await fetch(API_BASE);
+    const data = await res.json();
+    setUsers(data);
+  } catch (err) {
+    console.error(err);
+    showToast("Unable to load users.", "error");
   }
-
-  loadUsers();
-}, []);
+};
 
 
   // CREATE USER (POST)
